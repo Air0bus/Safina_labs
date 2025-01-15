@@ -34,15 +34,16 @@ def show_images(original, blurred, edges, sharpened, combined):
     plt.show()
 
 image = cv2.imread("Cardinal.jpg")
-blurred = cv2.GaussianBlur(image, (3, 3), 0)
+blured = cv2.GaussianBlur(image, (3, 3), 0)
+root = np.array([[0, -1, 0],
+                 [-1, 5, -1],
+                 [0, -1, 0]])
+#cv2.imshow("Blured", blured)
+sharpend = cv2.filter2D(blured, -1, root)
 
-edges = cv2.Sobel(blurred, cv2.CV_64F, 1, 1, ksize=5, scale=1, delta=0)
+edges = cv2.Sobel(blured, cv2.CV_64F, 1, 1, ksize=5, scale=1, delta=0)
 edges = cv2.convertScaleAbs(edges)
 
-mask = edges > 0
-edges_colored = np.zeros_like(image)
-edges_colored[mask] = edges[mask]
+comb = cv2.addWeighted(edges, 0.4, image, 0.6, 0)
 
-comb = cv2.addWeighted(edges_colored, 0.4, image, 0.6, 0)
-
-show_images(image, blurred, edges, edges_colored, comb)
+show_images(image, blured, edges, sharpend, comb)
