@@ -1,0 +1,48 @@
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
+
+def show_images(original, blurred, edges, sharpened, combined):
+    plt.figure(figsize=(12, 10))
+
+    plt.subplot(2, 3, 1)
+    plt.imshow(cv2.cvtColor(original, cv2.COLOR_BGR2RGB))
+    plt.axis('off')
+    plt.title("Original Image")
+
+    plt.subplot(2, 3, 2)
+    plt.imshow(cv2.cvtColor(blurred, cv2.COLOR_BGR2RGB))
+    plt.axis('off')
+    plt.title("Blurred Image")
+
+    plt.subplot(2, 3, 3)
+    plt.imshow(cv2.cvtColor(edges, cv2.COLOR_BGR2RGB))
+    plt.axis('off')
+    plt.title("Edges")
+
+    plt.subplot(2, 3, 4)
+    plt.imshow(cv2.cvtColor(sharpened, cv2.COLOR_BGR2RGB))
+    plt.axis('off')
+    plt.title("Sharpened Image")
+
+    plt.subplot(2, 3, 5)
+    plt.imshow(cv2.cvtColor(combined, cv2.COLOR_BGR2RGB))
+    plt.axis('off')
+    plt.title("Combined Edges")
+
+    plt.tight_layout()
+    plt.show()
+
+image = cv2.imread("Cardinal.jpg")
+blurred = cv2.GaussianBlur(image, (3, 3), 0)
+
+edges = cv2.Sobel(blurred, cv2.CV_64F, 1, 1, ksize=5, scale=1, delta=0)
+edges = cv2.convertScaleAbs(edges)
+
+mask = edges > 0
+edges_colored = np.zeros_like(image)
+edges_colored[mask] = edges[mask]
+
+comb = cv2.addWeighted(edges_colored, 0.4, image, 0.6, 0)
+
+show_images(image, blurred, edges, edges_colored, comb)
