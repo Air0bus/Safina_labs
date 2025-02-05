@@ -1,0 +1,43 @@
+import cv2
+import numpy as np
+
+image = cv2.imread('kitten.jpg')
+
+image = cv2.resize(image, (854, 480))
+
+hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+lower_yellow = np.array([20, 100, 100])  # жёлтый
+upper_yellow = np.array([30, 255, 255]) 
+
+mask = cv2.inRange(hsv_image, lower_yellow, upper_yellow)
+
+contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+
+
+min_area = 1000
+max_area = 5000
+
+for contour in contours:
+    area = cv2.contourArea(contour)
+    if min_area < area:
+        cv2.drawContours(image, contour, -1, (0, 255, 100), 2)
+        M = cv2.moments(contour)
+        x, y, w, h = cv2.boundingRect(contour)
+        if M["m00"] != 0:
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
+            cv2.circle(image, (cX, cY), radius=5, color=(0, 0, 0), thickness=-1)
+            # НАДПИСИ (не трогать пока)
+            cv2.putText(image, "cX = " + str(cX), (cX - 40, cY - 20), 
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,0), 2)
+            cv2.putText(image, "cY = " + str(cY), (cX - 40, cY + 20), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,0), 2)
+
+
+
+cv2.imshow('Contours', image)
+
+cv2.waitKey(0)
+cv2.destroyAllWindows()
